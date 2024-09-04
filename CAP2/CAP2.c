@@ -1,4 +1,4 @@
-#define ex4
+#define ex5
 #include <stdio.h>
 #include <locale.h>
 
@@ -141,5 +141,74 @@ main(){
     entre 8 e 14   Economico!
     maior que 14   Super economico! */
 
+main(){
+    float dist, litros, cons;
 
+    setlocale(LC_ALL, "");
+
+    printf("Digite a distância percorrida (em km): ");
+    scanf("%f", &dist);
+    printf("Digite a quantidade de litros de gasolina consumidos: ");
+    scanf("%f", &litros);
+
+    cons = dist / litros;
+
+    if (cons <8){
+        printf("Venda o carro!\n");
+    }
+    else if (cons >=8 && cons <=14){
+        printf("Econômico!\n");
+    }
+    else{
+        printf("Super econômico!\n");
+    }
+
+    return 0;
+}
 #endif // ex4
+
+#ifdef ex5
+/* As ligacoes telefonicas são cobradas pela sua duracao. O sistema registra os
+    instantes em que a ligacao foi iniciada e concluida.
+    Escreva um programa que recebe via teclado dois instantes dados em
+    horas, minutos e segundo e determina o intervalo de tempo
+    (em horas, minutos e segundos) decorrido entre eles. */
+
+
+int main() {
+    int hr_ini, min_ini, seg_ini;
+    int hr_fim, min_fim, seg_fim;
+    int hr, min, seg;
+
+    setlocale(LC_ALL, "");
+
+    printf("Digite o horário de início da ligação (hora minuto segundo, ex: 21 10 30): ");
+    scanf("%d %d %d", &hr_ini, &min_ini, &seg_ini);
+
+    printf("Digite o horário de fim da ligação (hora minuto segundo, ex: 21 10 30): ");
+    scanf("%d %d %d", &hr_fim, &min_fim, &seg_fim);
+
+    seg= seg_fim - seg_ini;
+    if (seg< 0) {
+        seg += 60;
+        min_fim--;
+    }
+
+    min = min_fim - min_ini;
+    if (min < 0) {
+        min += 60;
+        hr_fim--;
+    }
+
+    hr = hr_fim - hr_ini;
+    if (hr < 0) {
+        hr += 24;
+    }
+
+    printf("Duração da ligação: %02d:%02d:%02d\n", hr, min, seg);
+
+    return 0;
+}
+
+
+#endif // ex5
