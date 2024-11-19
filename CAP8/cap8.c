@@ -135,11 +135,11 @@ int main()
         // Chama a função de comparação e imprime o resultado
         if (compara())
         {
-            printf("As strings sao IGUAIS.\n");
+            printf("As palavras sao IGUAIS.\n");
         }
         else
         {
-            printf("As strings sao DIFERENTES.\n");
+            printf("As palavras sao DIFERENTES.\n");
         }
 
         printf("\nDigite 1 para repetir o programa, e qualquer tecla para encerrar: ");
