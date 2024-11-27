@@ -338,7 +338,7 @@ void alterarDados(struct dados *p_filmes)
 
             fseek(file, achado*sizeof(*p_filmes), 1);
             fwrite(p_filmes, sizeof(*p_filmes), 1, file);
-            printf("\nPreço alterado com sucesso!\n");
+            printf("\nFilme alterado com sucesso!\n");
         }
     }
     fclose(file);
