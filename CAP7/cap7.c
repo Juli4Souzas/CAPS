@@ -179,16 +179,25 @@ int main()
     Utilize vetor de estruturas.
                 estrutura: dia, mes, ano*/
 
-struct data
-{
+
+struct data {
     int dia;
     int mes;
     int ano;
 };
 
-
 struct data d[2];
 
+
+int calcularDias() {
+    //int diasPorMes[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    int totalDias1 = 0, totalDias2 = 0;
+
+    totalDias1 = (d[0].ano * 365) + ((d[0].mes - 1) * 30) + d[0].dia;
+    totalDias2 = (d[1].ano * 365) + ((d[1].mes - 1) * 30) + d[1].dia;
+
+    return totalDias2 - totalDias1;
+}
 /*
 int calcularDias()
 {
@@ -216,75 +225,27 @@ int calcularDias()
 }
 */
 
-// Função que calcula a diferença de dias entre as duas datas
-int calcularDias() {
-    int dias = 0;
-    int mesDias[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-
-    // Função auxiliar para verificar se o ano é bissexto
-    int ehBissexto(int ano) {
-        return (ano % 4 == 0 && (ano % 100 != 0 || ano % 400 == 0));
-    }
-
-    // Ajusta fevereiro para 29 dias se o ano inicial for bissexto
-    if (ehBissexto(d[0].ano)) {
-        mesDias[1] = 29;
-    }
-
-    // Contagem dos dias restantes no ano inicial
-    dias += mesDias[d[0].mes - 1] - d[0].dia;
-    for (int m = d[0].mes; m < 12; m++) {
-        dias += mesDias[m];
-    }
-
-    // Contagem dos dias dos anos intermediários
-    for (int ano = d[0].ano + 1; ano < d[1].ano; ano++) {
-        dias += ehBissexto(ano) ? 366 : 365;
-    }
-
-    // Ajusta fevereiro para o último ano se ele for bissexto
-    if (ehBissexto(d[1].ano)) {
-        mesDias[1] = 29;
-    } else {
-        mesDias[1] = 28;
-    }
-
-    // Contagem dos dias até a data final no último ano
-    for (int m = 0; m < d[1].mes - 1; m++) {
-        dias += mesDias[m];
-    }
-    dias += d[1].dia;
-
-    return dias;
-}
-
-
-main()
-{
+int main() {
     char repetir;
-    do
-    {
-        setlocale(LC_ALL, "");
+    setlocale(LC_ALL, "");
 
-        for(int i=0; i<2; i++)
-        {
-            printf("\nDigite a %d° data (dia mês ano): ", i+1);
+    do {
+        for (int i = 0; i < 2; i++) {
+            printf("\nDigite a %d° data (dia mês ano): ", i + 1);
             scanf("%d %d %d", &d[i].dia, &d[i].mes, &d[i].ano);
         }
 
         int diferenca = calcularDias();
         printf("\nDiferença de dias entre as datas: %d dias\n", diferenca);
 
-        printf("\nDigite 1 para repetir o programa, e qualquer tecla para encerrar: ");
+        printf("\nDigite 1 para repetir o programa, ou qualquer tecla para encerrar: ");
         scanf(" %c", &repetir);
         getchar();
-    }
-    while (repetir == '1');
+    } while (repetir == '1');
 
     printf("\nSair.\n");
     return 0;
 }
-
 #endif // ex3
 
 #ifdef ex4
