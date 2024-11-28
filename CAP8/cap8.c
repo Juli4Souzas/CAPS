@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <locale.h>
 
-#define ex5
+#define ex6
 
 #ifdef ex1
 /*1 - Escreva um programa que receba via teclado usando ponteiros um char,
@@ -363,77 +363,40 @@ struct Data
     int ano;
 };
 
-int bis(int ano)
-{
-    return (ano % 4 == 0 && ano % 100 != 0) || (ano % 400 == 0);
-}
 
-int totaDiasNoMes(int mes, int ano)
-{
-    if (mes == 2)
-    {
-        return bis(ano) ? 29 : 28;
-    }
-    return 31;
-}
 
-int calcularTotalDias(struct Data *data1, struct Data *data2)
-{
-    int dias = 0;
+int calcularDias(struct Data *p_datas) {
+    int totalDias1 = 0, totalDias2 = 0;
 
-    if (data1->ano == data2->ano && data1->mes == data2->mes)
-    {
-        return data2->dia - data1->dia;
-    }
+    totalDias1 = (p_datas[0].ano * 365) + ((p_datas[0].mes - 1) * 30) + p_datas[0].dia;
+    totalDias2 = (p_datas[1].ano * 365) + ((p_datas[1].mes - 1) * 30) + p_datas[1].dia;
 
-    dias += totaDiasNoMes(data1->mes, data1->ano) - data1->dia;
-
-    for (int mes = data1->mes + 1; mes <= 12; mes++)
-    {
-        dias += totaDiasNoMes(mes, data1->ano);
-    }
-
-    // Um ano antes da data 2:
-    for (int ano = data1->ano + 1; ano < data2->ano; ano++)
-    {
-        dias += bis(ano) ? 366 : 365;
-    }
-
-    for (int mes = 1; mes < data2->mes; mes++)
-    {
-        dias += totaDiasNoMes(mes, data2->ano);
-    }
-
-    dias += data2->dia;
-
-    return dias;
+    return totalDias2 - totalDias1;
 }
 
 int main()
 {
     setlocale(LC_ALL, "");
     struct Data datas[2];
+    struct Data *p_datas;
+    p_datas =  datas;
     char repetir;
 
-    do
-    {
-        printf("Digite a primeira data (Formato: dia mês ano): ");
-        scanf("%d %d %d", &datas[0].dia, &datas[0].mes, &datas[0].ano);
+    do {
+        for (int i = 0; i < 2; i++) {
+            printf("\nDigite a %d° data (dia mês ano): ", i + 1);
+            scanf("%d %d %d", &p_datas[i].dia, &p_datas[i].mes, &p_datas[i].ano);
+        }
 
-        printf("Digite a segunda data (Formato: dia mês ano): ");
-        scanf("%d %d %d", &datas[1].dia, &datas[1].mes, &datas[1].ano);
+        int diferenca = calcularDias(p_datas);
+        printf("\nDiferença de dias entre as datas: %d dias\n", diferenca);
 
-        int diasEntreAsDuas = calcularTotalDias(&datas[0], &datas[1]);
-        printf("O número da diferença entre os dias das duas datas é de: %d dias\n", diasEntreAsDuas);
-
-        printf("\nDigite 1 para repetir o programa, e qualquer tecla para encerrar: ");
+        printf("\nDigite 1 para repetir o programa, ou qualquer tecla para encerrar: ");
         scanf(" %c", &repetir);
         getchar();
-    }
-    while (repetir == '1');
+    } while (repetir == '1');
 
-    printf("\nSair.\n");
-
+    printf("\nSaindo :)\n");
     return 0;
 }
 #endif // ex6

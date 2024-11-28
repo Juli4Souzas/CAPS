@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <locale.h>
-#define ex4
+#define ex2
 
 #ifdef ex1
 /*1 - Escreva um programa para criar e abrir um arquivo texto de nome "arq.txt".
@@ -10,43 +10,35 @@
     "arq.txt", leia e imprima na tela todos os caracteres armazenados no
     arquivo (um por vezes).*/
 
-int main()
-{
+int main() {
     FILE *arquivo;
     char caractere;
 
-    if ((arquivo = fopen("arq.txt", "w"))== NULL)
-    {
+    if ((arquivo = fopen("arq.txt", "w"))== NULL) {
         printf("Erro na criação do arquivo.\n");
         return 1;
     }
 
     printf("Digite caracteres (digite '0' para finalizar):\n");
-    do
-    {
+    do {
         caractere = getchar();
-        if (caractere !='0')
-        {
+        if (caractere !='0') {
             fputc(caractere, arquivo);
         }
-    }
-    while (caractere !='0');
+    } while (caractere !='0');
 
     fclose(arquivo);
 
 
-    if ((arquivo = fopen("arq.txt", "r"))==NULL)
-    {
+    if ((arquivo = fopen("arq.txt", "r"))==NULL) {
         printf("Erro ao abrir o arquivo.\n");
         return 1;
     }
 
     printf("\nConteúdo do arquivo:\n");
-    while (1)
-    {
+    while (1) {
         caractere = getc(arquivo);
-        if (caractere == -1)
-        {
+        if (caractere == -1) {
             break;
         }
         putchar(caractere);
@@ -78,22 +70,44 @@ int main()
     7 - exclui contato
     8 - saida*/
 
-struct contatos
-{
+struct contatos {
     char nome[100];
     char telefone[15];
-    char niver[7];
+    char niver[8];
 };
 
-void incluirRegistro(struct contatos *p_dados)
-{
+void lerDados(struct contatos *p_dados) {
+    int i;
+    FILE *file = fopen("contatos.txt", "r");
+    if (file != NULL) {
+        for(i=0;i<4;i++){
+        fread((p_dados + i), sizeof(*p_dados), 1, file);
+        }
+        fclose(file);
+    }else{
+        printf("O arquivo ainda não existe\n");
+    }
+}
+
+void salvarDados(struct contatos *p_dados){
+    int i;
+    FILE *file = fopen("contatos.txt", "w");
+    if (file != NULL) {
+        for(i=0;i<4;i++){
+            fwrite((p_dados + i), sizeof(*p_dados), 1, file);
+        }
+        fclose(file);
+    } else {
+        printf("Erro ao abrir o arquivo\n");
+    }
+}
+
+
+void incluirRegistro(struct contatos *p_dados) {
     printf("\n--------------------- CADASTRO ---------------------\n\n");
 
-
-
-    for (int i = 0; i < 4; i++)
-    {
-        printf("Contato %d:\n", i + 1);
+    for (int i = 0; i < 4; i++) {
+        printf("\nContato %d:\n", i + 1);
 
         printf("Nome: ");
         gets(p_dados[i].nome);
@@ -101,51 +115,25 @@ void incluirRegistro(struct contatos *p_dados)
         printf("Telefone: ");
         gets(p_dados[i].telefone);
 
-        printf("Aniversário (mês/ano): ");
+        printf("Aniversário (dia/mês): ");
         gets(p_dados[i].niver);
 
+        salvarDados(p_dados);
 
-
-
-    FILE *file = fopen("contatosCadastrados.txt", "a");
-    if (file == NULL)
-    {
-        printf("Erro ao abrir o arquivo!\n");
-        return;
     }
-    else
-    {
-        fwrite(&p_dados, sizeof(*p_dados), 1, file);
-        fclose(file);
-    }
-
-
-
-}
- printf("\nParabéns! Dados cadastrados com sucesso!\n");
+    printf("\nParabéns! Dados cadastrados com sucesso!\n");
 }
 
 
 
 
-void lista(struct contatos *p_dados)
-{
+void lista(struct contatos *p_dados) {
     printf("\n------------ LISTA DOS CONTATOS ------------\n");
 
-    FILE *file = fopen("contatosCadastrados.txt", "r");
-    if (file == NULL)
-    {
-        printf("Erro ao abrir o arquivo!\n");
-        return;
-    }
+   lerDados(p_dados);
 
-    for (int i = 0; i < 4; i++)
-    {
-        int ver= fread(&p_dados, sizeof(*p_dados), 1, file);
-        if(ver==0)
-            break;
-        if (p_dados[i].nome[0] != '*')
-        {
+    for (int i = 0; i < 4; i++) {
+        if (p_dados[i].nome[0] != '*') {
             printf("\n------------ CONTATO %d ------------\n", i + 1);
             printf("Nome: %s\n", p_dados[i].nome);
             printf("Telefone: %s\n", p_dados[i].telefone);
@@ -153,11 +141,9 @@ void lista(struct contatos *p_dados)
         }
     }
 
-    fclose(file);
 }
 
-int pesquisaNome(struct contatos *p_dados)
-{
+int pesquisaNome(struct contatos *p_dados) {
     char nomeN[51];
     int achado = 0;
     int cont = 0;
@@ -165,36 +151,21 @@ int pesquisaNome(struct contatos *p_dados)
     printf("\nDigite o nome completo do contato: ");
     gets(nomeN);
 
-    FILE *file = fopen("contatosCadastrados.txt", "r");
-    if (file == NULL)
-    {
-        printf("Erro ao abrir o arquivo!\n");
-        return -1;
-    }
+    lerDados(p_dados);
 
-    for (int i = 0; i < 4; i++)
-    {
-        int ver = fread(&p_dados, sizeof(*p_dados), 1, file);
-        if (ver == 0)
-        {
-            break;
-        }
-
-        int mesma = 1;
+    for (int i = 0; i < 4; i++) {
+                int mesma = 1;
         int j = 0;
 
-        while (nomeN[j] != '\0' && p_dados[i].nome[j] != '\0')
-        {
-            if (nomeN[j] != p_dados[i].nome[j])
-            {
+        while (nomeN[j] != '\0' && p_dados[i].nome[j] != '\0') {
+            if (nomeN[j] != p_dados[i].nome[j]) {
                 mesma = 0;
                 break;
             }
             j++;
         }
 
-        if (mesma && nomeN[j] == '\0' && p_dados[i].nome[j] == '\0')
-        {
+        if (mesma && nomeN[j] == '\0' && p_dados[i].nome[j] == '\0') {
             printf("\n---------- CONTATO ENCONTRADO ----------\n");
             printf("Nome: %s\n", p_dados[i].nome);
             printf("Telefone: %s\n", p_dados[i].telefone);
@@ -206,117 +177,98 @@ int pesquisaNome(struct contatos *p_dados)
         cont++;
     }
 
-    fclose(file);
 
-    if (!achado)
-    {
+    if (!achado) {
         printf("\nContato não encontrado!\n");
         return -1;
-    }
-    else
-    {
+    } else {
         return cont;
     }
 }
 
 
-listarLetra(p_dados) {}
+listarLetra(struct contatos *p_dados) {
+    char letra;
+    int achado = 0;
 
-
-void imprimirNiver(struct contatos *p_dados) {
-    int mes;
-    printf("Digite o número do mês (1-12) para visualizar os aniversariantes: ");
-    scanf("%d", &mes);
+    printf("\n------------ PESQUISAR CONTATO PELA LETRA ------------\n");
+    printf("\nDigite a primeira letra do contato: ");
+    letra = getchar();
     getchar();
 
-    if (mes < 1 || mes > 12) {
-        printf("Mês inválido! Por favor, insira um valor entre 1 e 12.\n");
-        return;
-    }
-
-    printf("\n------------ ANIVERSARIANTES DO MÊS %d ------------\n", mes);
-
-    FILE *file = fopen("contatosCadastrados.txt", "r");
-    if (file == NULL) {
-        printf("Erro ao abrir o arquivo!\n");
-        return;
-    }
+    lerDados(p_dados);
 
     for (int i = 0; i < 4; i++) {
-        int ver = fread(&p_dados, sizeof(p_dados), 1, file);
-        if (ver == 0)
+
+    printf("Contatos começando com a letra '%c':\n", letra);
+
+        if (p_dados[i].nome[0] == letra) {
+            printf("\n---------- CONTATO ENCONTRADO ----------\n");
+            printf("Nome: %s\n", p_dados[i].nome);
+            printf("Telefone: %s\n", p_dados[i].telefone);
+            printf("Aniversário: %s\n", p_dados[i].niver);
+            achado = 1;
             break;
-
-        if (p_dados[i].nome[0] != '*' && p_dados[i].niver[0] != '\0') {
-            int contatoMes = (p_dados[i].niver[0] - '0') * 10 + (p_dados[i].niver[1] - '0'); // Extrai o mês do formato mês/ano
-            if (contatoMes == mes) {
-                printf("Nome: %s\n", p_dados[i].nome);
-                printf("Telefone: %s\n", p_dados[i].telefone);
-                printf("Aniversário: %s\n", p_dados[i].niver);
-            }
         }
-    }
 
-    fclose(file);
+    }
+    if (!achado) {
+        printf("Nenhum contato encontrado começando com a letra: '%c'.\n", letra);
+    }
+}
+
+void imprimirNiver(struct contatos *p_dados) {
+
 }
 
 
 
-void alterar(struct contatos *p_dados)
-{
+void alterar(struct contatos *p_dados) {
     printf("\n------- ALTERAR DADOS -------\n");
     int achado = pesquisaNome(p_dados);
 
 
-    FILE *file = fopen("contatosCadastrados.txt", "r+");
-    if (file == NULL)
-    {
-        printf("Erro ao abrir o arquivo!\n");
-        return;
-    }
+    lerDados(p_dados);
 
-    if(achado != -1)
-    {
-        if(p_dados->nome[0]!='*')
-        {
+
+    if(achado != -1) {
+        for (int i = 0; i < 4; i++) {
+        if(p_dados->nome[0]!='*') {
+
             printf("Digite o novo nome: ");
             gets(p_dados->nome);
 
             printf("Digite o novo telefone: ");
             gets(p_dados->telefone);
 
-            printf("Digite o novo aniversário (mês/ano): ");
+            printf("Digite o novo aniversário (dia/mês): ");
             gets(p_dados->niver);
 
-            fseek(file, achado*sizeof(*p_dados), 1);
-            fwrite(p_dados, sizeof(*p_dados), 1, file);
-            printf("\nDados alterados com sucesso!\n");
+            salvarDados(p_dados);
+            printf("Alterado com sucesso!");
         }
     }
-    fclose(file);
+    }
+
 }
 
 
 
-void excluir(struct contatos *p_dados)
-{
+
+void excluir(struct contatos *p_dados) {
     printf("\n------------- EXCLUIR FILME -------------\n");
 
     int achado = pesquisaNome(p_dados);
 
     FILE *file = fopen("contatosCadastrados.txt", "r+");
-    if (file == NULL)
-    {
+    if (file == NULL) {
         printf("Erro ao abrir o arquivo!\n");
         return;
     }
 
-    if (achado != -1)
-    {
-        for (int i = 0; i < 4; i++)
-        {
-            if (p_dados[i].nome[0] != '*')
-            {
+    if (achado != -1) {
+        for (int i = 0; i < 4; i++) {
+            if (p_dados[i].nome[0] != '*') {
                 p_dados[i].nome[0] = '*';
 
                 p_dados->nome[0]='*';
@@ -334,26 +286,24 @@ void excluir(struct contatos *p_dados)
 
 
 
-void saida()
-{
+void saida() {
     printf("\nFinalizando :)");
     exit(0);
 }
-main()
-{
+
+main() {
     setlocale(LC_ALL, "");
     struct contatos dados[4];
     struct contatos *p_dados= dados;
 
     int opcao;
 
-    do
-    {
+    do {
         printf("\n-------- Menu --------\n");
         printf("1 - Incluir contato\n");
         printf("2 - Listar todos os contatos\n");
         printf("3 - Pesquisar contato pelo nome\n");
-        printf("4 - Listar pela Letra\n"); // Corrigir o número do case
+        printf("4 - Listar pela Letra\n");
         printf("5 - Imprimir aniversariante do mês\n");
         printf("6 - Alterar contato\n");
         printf("7 - Excluir contato\n");
@@ -362,8 +312,7 @@ main()
         scanf("%d", &opcao);
         getchar();
 
-        switch (opcao)
-        {
+        switch (opcao) {
         case 1:
             incluirRegistro(p_dados);
             break;
@@ -391,8 +340,7 @@ main()
         default:
             printf("Opção inválida. Tente novamente.\n");
         }
-    }
-    while (opcao != 8);
+    } while (opcao != 8);
 
     return 0;
 }
@@ -416,15 +364,13 @@ main()
     5 - exclui registro
     6 - saida*/
 
-struct cliente
-{
+struct cliente {
     char nome[100];
     char email[100];
     char celular[15];
 };
 
-void incluirRegistro(struct cliente *p_dados)
-{
+void incluirRegistro(struct cliente *p_dados) {
     setlocale(LC_ALL, "");
 
     printf("\n--------------------- CADASTRO ---------------------\n\n");
@@ -443,14 +389,11 @@ void incluirRegistro(struct cliente *p_dados)
 
     FILE *file=fopen("registros.txt", "a");
 
-    if (file == NULL)
-    {
+    if (file == NULL) {
         printf("Erro ao abrir o arquivo!\n");
         return 1;
 
-    }
-    else
-    {
+    } else {
         fwrite(p_dados, sizeof(*p_dados), 1, file);
         fclose(file);
     }
@@ -460,37 +403,33 @@ void incluirRegistro(struct cliente *p_dados)
 }
 
 
-void lista(struct cliente *p_dados)
-{
+void lista(struct cliente *p_dados) {
     setlocale(LC_ALL,"");
 
     printf("\n------------ LISTA DOS REGISTROS ------------\n");
 
     FILE *file=fopen("registros.txt", "r");
-    if (file == NULL)
-    {
+    if (file == NULL) {
         printf("Erro ao abrir o arquivo!\n");
         return 1;
     }
 
-    while(1)
-    {
+    while(1) {
         int ver= fread(p_dados, sizeof(*p_dados), 1, file);
         if(ver==0)
             break;
 
-        if(p_dados->nome[0]!='*'){
-        printf("\n------------ Cliente ------------\n");
-        printf("Nome: %s",p_dados->nome);
-        printf("\nEmail: %s",p_dados->email);
-        printf("\nCelular: %s\n\n",p_dados->celular);
+        if(p_dados->nome[0]!='*') {
+            printf("\n------------ Cliente ------------\n");
+            printf("Nome: %s",p_dados->nome);
+            printf("\nEmail: %s",p_dados->email);
+            printf("\nCelular: %s\n\n",p_dados->celular);
         }
     }
     fclose(file);
 }
 
-int pesquisaNome(struct cliente *p_dados)
-{
+int pesquisaNome(struct cliente *p_dados) {
     char nomeB[51];
     int achado=0;
     int cont=0;
@@ -499,31 +438,26 @@ int pesquisaNome(struct cliente *p_dados)
     gets(nomeB);
 
     FILE *file = fopen("registros.txt", "r");
-    if (file == NULL)
-    {
+    if (file == NULL) {
         printf("Erro ao abrir o arquivo!\n");
         return;
     }
 
-    while (1)
-    {
+    while (1) {
         int ver= fread(p_dados, sizeof(*p_dados), 1, file);
         if(ver==0)
             break;
         int i=0, mesma=1;
 
-        while (nomeB[i] !='\0' && p_dados->nome[i] !='\0')
-        {
-            if (nomeB[i] !=p_dados->nome[i])
-            {
+        while (nomeB[i] !='\0' && p_dados->nome[i] !='\0') {
+            if (nomeB[i] !=p_dados->nome[i]) {
                 mesma=0;
                 break;
             }
             i++;
         }
 
-        if (mesma && nomeB[i]=='\0' && p_dados->nome[i]=='\0')
-        {
+        if (mesma && nomeB[i]=='\0' && p_dados->nome[i]=='\0') {
             printf("\n----- Registro encontrado -----\n");
             printf("Nome: %s\n", p_dados->nome);
             printf("Email: %s\n", p_dados->email);
@@ -535,37 +469,30 @@ int pesquisaNome(struct cliente *p_dados)
     }
 
     fclose(file);
-    if (!achado)
-    {
-        printf("\nFilme não encontrado!\n");
+    if (!achado) {
+        printf("\nRegistro não encontrado!\n");
         return -1;
-    }
-    else
-    {
+    } else {
         return cont;
     }
 
 }
 
 
-void alterar(struct cliente *p_dados)
-{
+void alterar(struct cliente *p_dados) {
     char nomeB[51];
     int achado = pesquisaNome(p_dados);
 
     printf("\n------------- ALTERAR DADOS -------------\n");
 
     FILE *file = fopen("registros.txt", "r+b");
-    if (file == NULL)
-    {
+    if (file == NULL) {
         printf("Erro ao abrir o arquivo!\n");
         return;
     }
 
-    if(achado != -1)
-    {
-        if(p_dados->nome[0]!='*')
-        {
+    if(achado != -1) {
+        if(p_dados->nome[0]!='*') {
 
             printf("\nDigite o novo nome: ");
             gets(p_dados->nome);
@@ -585,21 +512,18 @@ void alterar(struct cliente *p_dados)
     fclose(file);
 }
 
-void excluir(struct cliente *p_dados){
+void excluir(struct cliente *p_dados) {
     printf("\n------------- EXCLUIR FILME -------------\n");
     int achado = pesquisaNome(p_dados);
 
     FILE *file = fopen("registros.txt", "r+");
-    if (file == NULL)
-    {
+    if (file == NULL) {
         printf("Erro ao abrir o arquivo!\n");
         return;
     }
 
-    if(achado != -1)
-    {
-        if(p_dados->nome[0]!='*')
-        {
+    if(achado != -1) {
+        if(p_dados->nome[0]!='*') {
 
             p_dados->nome[0]='*';
             fseek(file, achado*sizeof(*p_dados), 1);
@@ -611,14 +535,12 @@ void excluir(struct cliente *p_dados){
     fclose(file);
 }
 
-void saida()
-{
+void saida() {
     printf("\nFinalizando :)");
     exit(0);
 }
 
-int main()
-{
+int main() {
     setlocale(LC_ALL, "");
     struct cliente dados;
     struct cliente *p_dados;
@@ -628,8 +550,7 @@ int main()
 
 
 
-    do
-    {
+    do {
         printf("\n-------- Menu --------\n");
         printf("1 - Incluir registro\n");
         printf("2 - Listar todos os registros\n");
@@ -641,8 +562,7 @@ int main()
         scanf("%d", &opcao);
         getchar();
 
-        switch (opcao)
-        {
+        switch (opcao) {
         case 1:
             incluirRegistro(p_dados);
             break;
@@ -664,8 +584,7 @@ int main()
         default:
             printf("Opção inválida. Tente novamente.\n");
         }
-    }
-    while (opcao != 6);
+    } while (opcao != 6);
 
     return 0;
 }
@@ -691,15 +610,13 @@ int main()
     8 - saida*/
 
 
-struct mercadoria
-{
+struct mercadoria {
     int cod;
     char nomeP[100];
     int quantidadeA;
 };
 
-void incluirProduto(struct mercadoria *p_dados)
-{
+void incluirProduto(struct mercadoria *p_dados) {
     setlocale(LC_ALL, "");
 
     printf("\n---------------- CADASTRO DE PRODUTOS ----------------\n\n");
@@ -720,14 +637,11 @@ void incluirProduto(struct mercadoria *p_dados)
 
     FILE *file=fopen("produtos.txt", "a");
 
-    if (file == NULL)
-    {
+    if (file == NULL) {
         printf("Erro ao abrir o arquivo!\n");
         return 1;
 
-    }
-    else
-    {
+    } else {
         fwrite(p_dados, sizeof(*p_dados), 1, file);
         fclose(file);
     }
@@ -737,30 +651,26 @@ void incluirProduto(struct mercadoria *p_dados)
 }
 
 
-void lista(struct mercadoria *p_dados)
-{
+void lista(struct mercadoria *p_dados) {
     setlocale(LC_ALL,"");
 
     printf("\n------------ LISTA DOS REGISTROS ------------\n");
 
     FILE *file = fopen("produtos.txt", "r");
-    if (file == NULL)
-    {
+    if (file == NULL) {
         printf("Erro ao abrir o arquivo!\n");
         return 1;
     }
 
-    while(1)
-    {
+    while(1) {
         int ver= fread(p_dados, sizeof(*p_dados), 1, file);
         if(ver==0)
             break;
-        if(p_dados->nomeP[0]!='*')
-        {
-        printf("\n------------ Produto ------------\n");
-        printf("Código: %d\n", p_dados->cod);
-        printf("Nome do Produto: %s\n", p_dados->nomeP);
-        printf("Quantidade: %d\n\n", p_dados->quantidadeA);
+        if(p_dados->nomeP[0]!='*') {
+            printf("\n------------ Produto ------------\n");
+            printf("Código: %d\n", p_dados->cod);
+            printf("Nome do Produto: %s\n", p_dados->nomeP);
+            printf("Quantidade: %d\n\n", p_dados->quantidadeA);
         }
     }
 
@@ -779,85 +689,101 @@ int pesquisaDescricao(struct mercadoria *p_dados) {
     gets(nome);
 
     FILE *file = fopen("produtos.txt", "r");
-    if (file == NULL)
-    {
+    if (file == NULL) {
         printf("Erro ao abrir o arquivo!\n");
         return;
     }
 
-    while (1)
-    {
+    while (1) {
         int ver= fread(p_dados, sizeof(*p_dados), 1, file);
         if(ver==0)
             break;
         int i=0, mesma=1;
 
-        while (nome[i] !='\0' && p_dados->nomeP[i] !='\0')
-        {
-            if (nome[i] !=p_dados->nomeP[i])
-            {
+        while (nome[i] !='\0' && p_dados->nomeP[i] !='\0') {
+            if (nome[i] !=p_dados->nomeP[i]) {
                 mesma=0;
                 break;
             }
             i++;
         }
 
-        if (mesma && nome[i]=='\0' && p_dados->nomeP[i]=='\0')
-        {
-            if(p_dados->nomeP[0]!='*')
-        {
-            printf("\n------ PRODUTO ENCONTRADO ------\n");
-            printf("Código: %d\n", p_dados->cod);
-            printf("Nome do Produto: %s\n", p_dados->nomeP);
-            printf("Quantidade: %d\n\n", p_dados->quantidadeA);
-            achado=1;
-            break;
-        }
+        if (mesma && nome[i]=='\0' && p_dados->nomeP[i]=='\0') {
+            if(p_dados->nomeP[0]!='*') {
+                printf("\n------ PRODUTO ENCONTRADO ------\n");
+                printf("Código: %d\n", p_dados->cod);
+                printf("Nome do Produto: %s\n", p_dados->nomeP);
+                printf("Quantidade: %d\n\n", p_dados->quantidadeA);
+                achado=1;
+                break;
+            }
         }
         cont++;
     }
 
     fclose(file);
-    if (!achado)
-    {
+    if (!achado) {
         printf("\nProduto não encontrado!\n");
         return -1;
-    }
-    else
-    {
+    } else {
         return cont;
     }
 }
-void listaIndisponivel(p_dados) {}
+void listaIndisponivel(struct mercadoria *p_dados) {
+    setlocale(LC_ALL,"");
+
+    printf("\n------------ LISTA DOS REGISTROS NÃO DISPONÍVEIS ------------\n");
+
+    FILE *file = fopen("produtos.txt", "r");
+    if (file == NULL) {
+        printf("Erro ao abrir o arquivo!\n");
+        return 1;
+    }
+
+    while(1) {
+        int ver= fread(p_dados, sizeof(*p_dados), 1, file);
+        if(ver==0)
+            break;
+        if(p_dados->nomeP[0]!='*') {
+            if(p_dados->quantidadeA<=0) {
+                printf("\n------------ Produto ------------\n");
+                printf("Código: %d\n", p_dados->cod);
+                printf("Nome do Produto: %s\n", p_dados->nomeP);
+                printf("Quantidade: %d\n\n", p_dados->quantidadeA);
+            }
+
+        }
+    }
+
+    fclose(file);
 
 
-void alterarQtd(struct mercadoria *p_dados)
-{
+}
+
+
+void alterarQtd(struct mercadoria *p_dados) {
     printf("\n----- ALTERAR QUANTIDADE -----");
     int novaQuantidade;
     int achado = pesquisaDescricao(p_dados);
 
 
     FILE *file = fopen("produtos.txt", "r+");
-    if (file == NULL)
-    {
+    if (file == NULL) {
         printf("Erro ao abrir o arquivo!\n");
         return;
     }
 
 
-    if(achado != -1)
-    {
-        if(p_dados->nomeP[0]!='*')
-        {
-        printf("\nDigite a quantidade  que deseja adicionar ou retirar do produto: ");
-        scanf("%d", &novaQuantidade);
+    if(achado != -1) {
+        if(p_dados->nomeP[0]!='*') {
+            printf("\nDigite a quantidade  que deseja adicionar ou retirar do produto: ");
+            scanf("%d", &novaQuantidade);
 
-        p_dados->quantidadeA = p_dados->quantidadeA+novaQuantidade;
+            p_dados->quantidadeA = p_dados->quantidadeA+novaQuantidade;
 
-        fseek(file, achado*sizeof(*p_dados), 1);
-        fwrite(p_dados, sizeof(*p_dados), 1, file);
-        printf("\nQuantidade alterada com sucesso!\n");
+            fseek(file, achado*sizeof(*p_dados), 1);
+            fwrite(p_dados, sizeof(*p_dados), 1, file);
+            printf("\nQuantidade alterada com sucesso!\n");
         }
     }
     fclose(file);
@@ -869,16 +795,13 @@ void alterar(struct mercadoria *p_dados) {
 
 
     FILE *file = fopen("produtos.txt", "r+");
-    if (file == NULL)
-    {
+    if (file == NULL) {
         printf("Erro ao abrir o arquivo!\n");
         return;
     }
 
-    if(achado != -1)
-    {
-        if(p_dados->nomeP[0]!='*')
-        {
+    if(achado != -1) {
+        if(p_dados->nomeP[0]!='*') {
             printf("Digite o novo código do produto: ");
             scanf("%d",&p_dados->cod);
 
@@ -903,16 +826,13 @@ void excluir(struct mercadoria *p_dados) {
     int achado = pesquisaDescricao(p_dados);
 
     FILE *file = fopen("produtos.txt", "r+");
-    if (file == NULL)
-    {
+    if (file == NULL) {
         printf("Erro ao abrir o arquivo!\n");
         return;
     }
 
-    if(achado != -1)
-    {
-        if(p_dados->nomeP[0]!='*')
-        {
+    if(achado != -1) {
+        if(p_dados->nomeP[0]!='*') {
 
             p_dados->nomeP[0]='*';
             fseek(file, achado*sizeof(*p_dados), 1);
@@ -926,14 +846,12 @@ void excluir(struct mercadoria *p_dados) {
 }
 
 
-void saida()
-{
+void saida() {
     printf("\nFinalizando :)");
     exit(0);
 }
 
-int main()
-{
+int main() {
     setlocale(LC_ALL, "");
     struct mercadoria dados;
     struct mercadoria *p_dados;
@@ -941,15 +859,14 @@ int main()
 
     int opcao;
 
-    do
-    {
+    do {
         printf("\n-------- Menu --------\n");
 
 
         printf("1 - Incluir produto\n");
         printf("2 - Listar todos os produtos\n");
         printf("3 - Pesquisar produto pelo nome\n");
-        printf("4 - Listar não diponíveis\n");
+        printf("4 - Listar não disponíveis\n");
         printf("5 - Alterar Quantidade\n");
         printf("6 - Alterar dados do produto\n");
         printf("7 - Excluir registro\n");
@@ -958,7 +875,7 @@ int main()
         scanf("%d", &opcao);
         getchar();
 
-        switch (opcao){
+        switch (opcao) {
         case 1:
             incluirProduto(p_dados);
             break;
@@ -986,8 +903,7 @@ int main()
         default:
             printf("Opção inválida. Tente novamente.\n");
         }
-    }
-    while (opcao != 8);
+    } while (opcao != 8);
 
     return 0;
 }
